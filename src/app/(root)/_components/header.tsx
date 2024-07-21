@@ -1,12 +1,14 @@
 import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Sheet, SheetContent, SheetTrigger } from '@/components/ui'
+import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
+import { redirect } from 'next/navigation'
 
 export const Header = () => {
   return (
     <>
-      <header className="sticky top-0 flex h-16 items-center gap-4 bg-background px-4 md:px-6">
+      <header className="sticky top-0 flex h-20 items-center gap-4 bg-background px-4 md:px-6">
         <nav className="lg:gap-12 gap-6 hidden md:flex items-center flex-shrink-0">
           <Link
             href="/"
@@ -78,23 +80,14 @@ export const Header = () => {
           </SheetContent>
         </Sheet>
         <div className="flex w-full justify-end items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-          <Button>Sign in</Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="icon" className="rounded-full">
-                {/* <CircleUser className="h-5 w-5" /> */}
-                <span className="sr-only">Toggle user menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <SignedOut>
+            <SignInButton><Button>Sign In</Button></SignInButton>
+          </SignedOut>
+          <SignedIn>
+            <UserButton />
+            <Button asChild><Link href={"/dashboard"}>Dashboard</Link></Button>
+          </SignedIn>
+
         </div>
       </header>
       <div className="grid w-full grid-cols-1 my-auto mt-12 mb-8 md:grid-cols-2 xl:gap-14 md:gap-5">
@@ -112,7 +105,7 @@ export const Header = () => {
           </div>
         </div>
         <div className="items-center justify-end hidden col-span-1 md:flex">
-          <Image className="w-4/5 rounded-md" width={1000} height={1000} src="/sharing_file.svg" alt="header image" />
+          <Image loading="lazy" className="w-4/5 rounded-md" width={1000} height={1000} src="/sharing_file.svg" alt="header image" />
         </div>
       </div>
     </>
