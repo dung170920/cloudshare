@@ -1,6 +1,5 @@
 import { Header } from "./_components/header";
 
-
 export default function HomeLayout({
   children,
 }: Readonly<{

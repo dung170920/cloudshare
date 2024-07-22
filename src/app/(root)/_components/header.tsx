@@ -1,9 +1,8 @@
-import { Button, DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, Sheet, SheetContent, SheetTrigger } from '@/components/ui'
-import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
+import { Button, Sheet, SheetContent, SheetTrigger } from '@/components/ui'
+import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
 import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
-import { redirect } from 'next/navigation'
 
 export const Header = () => {
   return (
@@ -46,7 +45,6 @@ export const Header = () => {
               className="shrink-0 md:hidden"
             >
               {/* <Menu className="h-5 w-5" /> */}
-              <span className="sr-only">Toggle navigation menu</span>
             </Button>
           </SheetTrigger>
           <SheetContent side="left">
@@ -84,30 +82,10 @@ export const Header = () => {
             <SignInButton><Button>Sign In</Button></SignInButton>
           </SignedOut>
           <SignedIn>
-            <UserButton />
-            <Button asChild><Link href={"/dashboard"}>Dashboard</Link></Button>
+            <Button asChild><Link href={"/dashboard"}>Go to Dashboard</Link></Button>
           </SignedIn>
-
         </div>
       </header>
-      <div className="grid w-full grid-cols-1 my-auto mt-12 mb-8 md:grid-cols-2 xl:gap-14 md:gap-5">
-        <div className="flex flex-col justify-center col-span-1 text-center lg:text-start">
-          <div className="flex items-center justify-center mb-4 lg:justify-normal">
-            <h4 className="ml-2 text-sm font-bold tracking-widest text-primary uppercase">File Sharing</h4>
-          </div>
-          <h1 className="mb-8 text-4xl font-extrabold leading-tight lg:text-6xl text-foreground">Save and share your files</h1>
-          <p className="mb-6 text-base font-normal leading-7 lg:w-3/4 text-foreground">
-            Drag and drop your files directly to the cloud. Quickly and easily share files with anyone, anywhere, on any device.
-          </p>
-          <div className="flex flex-col items-center gap-4 lg:flex-row">
-            <Button size={"lg"}>Get started now</Button>
-            <Button size={"lg"} variant={'ghost'}>Learn more</Button>
-          </div>
-        </div>
-        <div className="items-center justify-end hidden col-span-1 md:flex">
-          <Image loading="lazy" className="w-4/5 rounded-md" width={1000} height={1000} src="/sharing_file.svg" alt="header image" />
-        </div>
-      </div>
     </>
   )
 }
