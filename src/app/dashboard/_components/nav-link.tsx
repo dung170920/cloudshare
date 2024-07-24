@@ -24,10 +24,10 @@ const NavLink = ({ isMobile = false }: Props) => {
               href={link.path}
               className={cn("flex items-center gap-3 rounded-lg px-4 py-3 text-muted-foreground transition-all hover:text-primary", {
                 "mx-[-0.65rem]": isMobile,
-                "text-primary": pathname.startsWith(link.path),
+                "text-primary bg-primary/10": pathname.startsWith(link.path),
               })}
             >
-              <Icon icon={pathname.startsWith(link.path) ? `solid-${link.icon}` : link.icon} />
+              <Icon icon={pathname.startsWith(link.path) ? link.activeIcon : link.icon} />
               {link.title}
             </Link>
           ))}
