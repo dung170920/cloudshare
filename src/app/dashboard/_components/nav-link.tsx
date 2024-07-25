@@ -17,17 +17,17 @@ const NavLink = ({ isMobile = false }: Props) => {
   return (
     <>
       <div className="flex-1">
-        <nav className={cn("grid items-start text-sm font-medium", { "px-2 lg:px-4 lg:py-4": !isMobile })}>
+        <nav className={cn("grid items-start text-sm font-medium gap-3", { "px-2 lg:px-4 lg:py-4": !isMobile })}>
           {navLinks.map((link) => (
             <Link
               key={link.path}
               href={link.path}
               className={cn("flex items-center gap-3 rounded-lg px-4 py-3 text-muted-foreground transition-all hover:text-primary", {
                 "mx-[-0.65rem]": isMobile,
-                "text-primary bg-primary/10": pathname.startsWith(link.path),
+                "text-primary bg-primary/10": pathname === link.path,
               })}
             >
-              <Icon icon={pathname.startsWith(link.path) ? link.activeIcon : link.icon} />
+              <Icon icon={pathname === link.path ? link.activeIcon : link.icon} />
               {link.title}
             </Link>
           ))}
