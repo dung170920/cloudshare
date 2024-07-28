@@ -1,12 +1,17 @@
+import Image from "next/image";
+import UploadFile from "./_components/upload-file";
+
 export default function FilesPage() {
   return (
     <>
       <div className="flex items-center">
-        <h1 className="text-lg font-semibold md:text-2xl">Files</h1>
+        <h1 className="text-lg font-semibold md:text-2xl flex-1">Files</h1>
+        <UploadFile />
       </div>
       <div
-        className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm" x-chunk="dashboard-02-chunk-1"
+        className="flex flex-1 flex-col items-center justify-center gap-4 rounded-lg border border-dashed shadow-sm"
       >
+        <Image src={'/add_file.svg'} height={250} width={250} alt="" />
         <div className="flex flex-col items-center gap-1 text-center">
           <h3 className="text-2xl font-bold tracking-tight">
             You have no files
