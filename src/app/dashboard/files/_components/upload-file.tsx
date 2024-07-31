@@ -1,12 +1,15 @@
 "use client"
 import Icon from '@/components/icon'
 import { Alert, AlertDescription, AlertTitle, Button, Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui'
+import { app } from '@/config/firebase'
 import { fSize } from '@/lib/utils'
+import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage'
 import React, { useCallback, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 
 const UploadFile = () => {
   const [files, setFiles] = useState<(File)[]>([]);
+  const storage = getStorage(app);
 
   const handleDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -16,7 +19,30 @@ const UploadFile = () => {
   );
 
   const handleUpload = () => {
-    console.log('ON UPLOAD');
+    const storageRef = ref(storage, `images/${files[0].name}`);
+
+    files.forEach((f) => {
+      const uploadTask = uploadBytesResumable(storageRef, f, { contentType: f.type });
+      uploadTask.on('state_changed', (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log('Upload is ' + progress + '% done');
+        switch (snapshot.state) {
+          case 'paused':
+            console.log('Upload is paused');
+            break;
+          case 'running':
+            console.log('Upload is running');
+            break;
+        }
+      }, (error) => {
+        console.log(error);
+      }, () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          console.log('File available at', downloadURL);
+        });
+      })
+    });
+
   };
 
   const {
@@ -44,9 +70,9 @@ const UploadFile = () => {
             <input {...getInputProps()} />
             <Icon icon='solid-upload-alt' size={64} className='text-primary' />
             <h5 className='text-lg font-semibold mt-2 text-primary'>Drop or click to upload files</h5>
-            <p className='text-sm text-foreground/50 mt-1'>Max size 2MB</p>
+            <p className='text-sm text-foreground/50 mt-1'>Only accept image files. Max size 2MB</p>
           </div>
-          {fileRejections.map(({ file, errors }) => {
+          {fileRejections.map(({ file }) => {
             return (
               <Alert variant="destructive" key={file.name}>
                 <Icon icon='solid-exclamation-circle' />
