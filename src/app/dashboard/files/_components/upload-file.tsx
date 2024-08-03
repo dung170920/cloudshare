@@ -1,14 +1,17 @@
 "use client"
 import Icon from '@/components/icon'
-import { Alert, AlertDescription, AlertTitle, Button, Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui'
+import { Alert, AlertDescription, AlertTitle, Button, Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Progress } from '@/components/ui'
 import { app } from '@/config/firebase'
 import { fSize } from '@/lib/utils'
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage'
 import React, { useCallback, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
+import { Icon as FileIcon } from 'react-extension-icons'
 
 const UploadFile = () => {
-  const [files, setFiles] = useState<(File)[]>([]);
+  const [files, setFiles] = useState<File[]>([]);
+  const [open, setOpen] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
   const storage = getStorage(app);
 
   const handleDrop = useCallback(
@@ -25,24 +28,21 @@ const UploadFile = () => {
       const uploadTask = uploadBytesResumable(storageRef, f, { contentType: f.type });
       uploadTask.on('state_changed', (snapshot) => {
         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log('Upload is ' + progress + '% done');
-        switch (snapshot.state) {
-          case 'paused':
-            console.log('Upload is paused');
-            break;
-          case 'running':
-            console.log('Upload is running');
-            break;
-        }
+        setUploadProgress((prevProgress) => ({
+          ...prevProgress,
+          [f.name]: progress
+        }));
       }, (error) => {
         console.log(error);
       }, () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          setFiles([]);
+          setUploadProgress({});
+          setOpen(false);
           console.log('File available at', downloadURL);
         });
       })
     });
-
   };
 
   const {
@@ -58,9 +58,11 @@ const UploadFile = () => {
 
   return (
     <>
-      <Dialog>
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button><Icon icon='upload' className='mr-2' size={20} /> Upload file</Button>
+          <Button>
+            <Icon icon='upload' className='mr-2' size={20} /> Upload file
+          </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -88,18 +90,22 @@ const UploadFile = () => {
           <div className='my-6 flex flex-col gap-2'>
             {files.map((file, index) => {
               return (
-                <div
-                  key={index}
-                  className='flex items-center gap-2 px-3 py-2 rounded border border-border'
-                >
-                  <Icon icon='solid-file-text' size={36} />
-                  <div className="flex flex-col gap-1 flex-grow">
-                    <span className='text-sm font-semibold'>{file.name}</span>
-                    <span className='text-xs text-neutral-500'>{fSize(file.size)}</span>
+                <div key={index} className="flex flex-col px-3 py-2 rounded border border-border gap-3">
+                  <div className='flex items-center gap-2'>
+                    <FileIcon extension={file.name.split('.').pop() || ''} variant="color" size={48} />
+                    <div className="flex flex-col gap-1 flex-grow">
+                      <span className='text-sm font-semibold'>{file.name}</span>
+                      <span className='text-xs text-neutral-500'>{fSize(file.size)}</span>
+                    </div>
+                    <Button variant={'ghost'} size={'icon'} onClick={() => handleRemoveFile(file)}>
+                      <Icon icon='solid-times' size={16} />
+                    </Button>
                   </div>
-                  <Button variant={'ghost'} size={'icon'} onClick={() => handleRemoveFile(file)}>
-                    <Icon icon='solid-times' size={16} />
-                  </Button>
+                  {uploadProgress[file.name] > 0 && (
+                    <div className="flex gap-4 items-center">
+                      <Progress value={uploadProgress[file.name]} className='h-1 bg-muted' />
+                      <span className='text-xs text-neutral-500'>{uploadProgress[file.name]}%</span>
+                    </div>)}
                 </div>
               );
             })}
@@ -110,12 +116,9 @@ const UploadFile = () => {
                 Close
               </Button>
             </DialogClose>
-            <DialogClose asChild>
-              <Button type="button" onClick={handleUpload}>
-                Upload
-              </Button>
-            </DialogClose>
-
+            <Button type="button" onClick={handleUpload}>
+              Upload
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
