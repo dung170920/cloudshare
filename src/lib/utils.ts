@@ -8,6 +8,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const randomUrl = () => Math.random().toString(36).substring(6);
+
 export function fSize(number: InputValue) {
   const format = number ? numeral(number).format("0.0 b") : "";
 

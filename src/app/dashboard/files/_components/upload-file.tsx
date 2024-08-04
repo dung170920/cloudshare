@@ -1,18 +1,20 @@
 "use client"
 import Icon from '@/components/icon'
 import { Alert, AlertDescription, AlertTitle, Button, Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, Progress } from '@/components/ui'
-import { app } from '@/config/firebase'
-import { fSize } from '@/lib/utils'
-import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage'
+import { db, storage } from '@/config/firebase'
+import { fSize, randomUrl } from '@/lib/utils'
+import { getDownloadURL, ref, uploadBytesResumable } from 'firebase/storage'
 import React, { useCallback, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { Icon as FileIcon } from 'react-extension-icons'
+import { doc, setDoc } from "firebase/firestore"
+import { useUser } from '@clerk/nextjs'
 
 const UploadFile = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [open, setOpen] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
-  const storage = getStorage(app);
+  const { user } = useUser();
 
   const handleDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -35,11 +37,22 @@ const UploadFile = () => {
       }, (error) => {
         console.log(error);
       }, () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+        getDownloadURL(uploadTask.snapshot.ref).then(async (downloadURL) => {
           setFiles([]);
           setUploadProgress({});
           setOpen(false);
-          console.log('File available at', downloadURL);
+          const docId = randomUrl();
+          await setDoc(doc(db, "files", docId), {
+            id: docId,
+            name: f.name,
+            size: f.size,
+            type: f.type,
+            url: downloadURL,
+            userEmail: user?.primaryEmailAddress?.emailAddress,
+            userName: user?.fullName,
+            password: '',
+            shortUrl: process.env.NEXT_PUBLIC_BASE_URL + '/files/' + docId
+          });
         });
       })
     });
