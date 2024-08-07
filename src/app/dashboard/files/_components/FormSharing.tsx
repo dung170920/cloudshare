@@ -19,8 +19,22 @@ const FormSharing = ({ file }: any) => {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    console.log(data);
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    const req = {
+      email: data.email,
+      fileName: file?.name,
+      url: data.url,
+    }
+    const response = await fetch('/api/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(req),
+    });
+
+    const result = await response.json();
+    console.log('result :', result);
   }
 
   return (
